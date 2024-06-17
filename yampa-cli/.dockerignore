@@ -1,0 +1,18 @@
+# Hidden files
+.*
+
+# Documentation files
+docs
+
+# Docker files
+docker-compose*
+Dockerfile*
+
+# Test files
+test*
+
+# Markdown files
+*.md
+
+# Yampa binary
+yampa-cli
