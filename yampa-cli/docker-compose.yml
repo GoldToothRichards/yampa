@@ -1,0 +1,33 @@
+services:
+  topics:
+    image: redpandadata/redpanda:v24.1.7
+    container_name: stream-topics
+    networks:
+      - redpanda-net
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      echo 'Waiting for Redpanda to start...';
+      until rpk --brokers=${KAFKA_BROKER_URLS} cluster info; do
+        sleep 5;
+      done;
+      echo 'Redpanda started, creating topics...';
+      rpk topic create trades --brokers=${KAFKA_BROKER_URLS} -c cleanup.policy=delete;
+      echo 'Topics created successfully.';
+      "
+
+  coincap-crypto-streams:
+    build: .
+    container_name: coincap-crypto-streams
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    env_file:
+      - ./yampa.env
+    command: stream coincap --kafka --quiet --topic trades
+    depends_on:
+      - topics
+
+networks:
+  redpanda-net:
+    external: true

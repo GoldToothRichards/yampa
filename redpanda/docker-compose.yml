@@ -1,0 +1,137 @@
+services:
+  redpanda-1:
+    image: redpandadata/redpanda:v24.1.7
+    container_name: redpanda-1
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    volumes:
+      - "redpanda-1-data:/var/lib/redpanda/data"
+    command:
+      - redpanda start
+      - --smp 1
+      - --node-id 1
+      - --kafka-addr INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr INSIDE://redpanda-1:29092,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:9092
+      - --pandaproxy-addr INSIDE://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+      - --advertise-pandaproxy-addr INSIDE://redpanda-1:28082,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:8082
+      - --rpc-addr 0.0.0.0:33145
+      - --advertise-rpc-addr redpanda-1:33145
+      - --set redpanda.enable_idempotence=true
+      - --set redpanda.enable_transactions=true
+      - --set redpanda.auto_create_topics_enabled=true
+      - --set redpanda.default_topic_replications=3
+      - --set redpanda.default_topic_partitions=10
+      - --set redpanda.log_cleanup_policy=compact # compact, delete
+      - --set redpanda.log_segment_ms=86400000 # Always close segment after 24 hours. Segments may be closed sooner if they reach the segment size limit (default 1GB).
+      - --set redpanda.log_retention_ms=86400000 # Mark a log segment for deletion 24 hours after it is closed. Messages may be deleted sooner if they reach the retention size limit (default 1GB).
+      - --set redpanda.log_compression_type=producer # producer, gzip, lz4, snappy, zstd
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 9092:9092
+      - 29092:29092
+      - 9644:9644
+
+  redpanda-2:
+    image: redpandadata/redpanda:v24.1.7
+    container_name: redpanda-2
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    volumes:
+      - "redpanda-2-data:/var/lib/redpanda/data"
+    command:
+      - redpanda start
+      - --smp 1
+      - --node-id 2
+      - --kafka-addr INSIDE://0.0.0.0:29093,OUTSIDE://0.0.0.0:9093
+      - --advertise-kafka-addr INSIDE://redpanda-2:29093,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:9093
+      - --pandaproxy-addr INSIDE://0.0.0.0:28083,OUTSIDE://0.0.0.0:8083
+      - --advertise-pandaproxy-addr INSIDE://redpanda-2:28083,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:8083
+      - --rpc-addr 0.0.0.0:33146
+      - --advertise-rpc-addr redpanda-2:33146
+      - --set redpanda.enable_idempotence=true
+      - --set redpanda.enable_transactions=true
+      - --set redpanda.auto_create_topics_enabled=true
+      - --set redpanda.default_topic_replications=3
+      - --set redpanda.default_topic_partitions=10
+      - --set redpanda.log_cleanup_policy=compact # compact, delete
+      - --set redpanda.log_segment_ms=86400000 # Always close segment after 24 hours. Segments may be closed sooner if they reach the segment size limit (default 1GB).
+      - --set redpanda.log_retention_ms=86400000 # Mark a log segment for deletion 24 hours after it is closed. Messages may be deleted sooner if they reach the retention size limit (default 1GB).
+      - --set redpanda.log_compression_type=producer # producer, gzip, lz4, snappy, zstd
+      - --seeds
+      - "redpanda-1:33145"
+    ports:
+      - 8083:8083
+      - 9093:9093
+
+  redpanda-3:
+    image: redpandadata/redpanda:v24.1.7
+    container_name: redpanda-3
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    volumes:
+      - "redpanda-3-data:/var/lib/redpanda/data"
+    command:
+      - redpanda start
+      - --smp 1
+      - --node-id 3
+      - --kafka-addr INSIDE://0.0.0.0:29094,OUTSIDE://0.0.0.0:9094
+      - --advertise-kafka-addr INSIDE://redpanda-3:29094,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:9094
+      - --pandaproxy-addr INSIDE://0.0.0.0:28084,OUTSIDE://0.0.0.0:8084
+      - --advertise-pandaproxy-addr INSIDE://redpanda-3:28084,OUTSIDE://${REDPANDA_CLUSTER_HOST_ADDRESS}:8084
+      - --rpc-addr 0.0.0.0:33147
+      - --advertise-rpc-addr redpanda-3:33147
+      - --set redpanda.enable_idempotence=true
+      - --set redpanda.enable_transactions=true
+      - --set redpanda.auto_create_topics_enabled=true
+      - --set redpanda.default_topic_replications=3
+      - --set redpanda.default_topic_partitions=10
+      - --set redpanda.log_cleanup_policy=compact # compact, delete
+      - --set redpanda.log_segment_ms=86400000 # Always close segment after 24 hours. Segments may be closed sooner if they reach the segment size limit (default 1GB).
+      - --set redpanda.log_retention_ms=86400000 # Mark a log segment for deletion 24 hours after it is closed. Messages may be deleted sooner if they reach the retention size limit (default 1GB).
+      - --set redpanda.log_compression_type=producer # producer, gzip, lz4, snappy, zstd
+      - --seeds
+      - "redpanda-1:33145"
+    ports:
+      - 8084:8084
+      - 9094:9094
+
+  console:
+    image: redpandadata/console:v2.4.1
+    container_name: redpanda-console
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda-1:29092","redpanda-2:29093","redpanda-3:29094"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda-1:8081"]
+        connect:
+          enabled: true
+          clusters:
+            - name: Primary
+              url: http://${CONNECT_CLUSTER_HOST_ADDRESS}:8083
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redpanda-1
+      - redpanda-2
+      - redpanda-3
+
+networks:
+  redpanda-net:
+    external: true
+
+volumes:
+  redpanda-1-data:
+  redpanda-2-data:
+  redpanda-3-data:
