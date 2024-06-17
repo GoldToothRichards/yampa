@@ -1,0 +1,30 @@
+services:
+  arroyo:
+    image: ghcr.io/arroyosystems/arroyo-single:0.10.3
+    container_name: arroyo-1
+    restart: unless-stopped
+    networks:
+      - redpanda-net
+    ports:
+      - 8000:8000
+
+  topics:
+    image: redpandadata/redpanda:v24.1.7
+    container_name: stream-topics
+    networks:
+      - redpanda-net
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      echo 'Waiting for Redpanda to start...';
+      until rpk --brokers=${KAFKA_BROKER_URLS} cluster info; do
+        sleep 5;
+      done;
+      echo 'Redpanda started, creating topics...';
+      rpk topic create prices --brokers=${KAFKA_BROKER_URLS} -r 1 -c cleanup.policy=delete -c retention.ms=3600000;
+      echo 'Topics created successfully.';
+      "
+
+networks:
+  redpanda-net:
+    external: true

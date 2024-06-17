@@ -1,0 +1,28 @@
+# Yampa
+
+A real time streaming tool for stocks and cryptocurrencies.
+
+## Getting Started
+
+1. Create a docker network for the Redpanda containers:
+
+   ```bash
+   docker network create --driver bridge --attachable redpanda-net
+   ```
+
+2. Start your Redpanda cluster:
+
+   ```bash
+   cd redpanda && docker compose up --remove-orphans -d && cd ..
+   ```
+
+3. Start streaming trades from Coincap into Redpanda:
+
+   - Copy the contents of `yampa-cli/.env.example` into `yampa-cli/.env`.
+   - Start the yampa-cli container:
+
+     ```bash
+     cd yampa-cli && docker compose up --build --remove-orphans -d && cd ..
+     ```
+
+4. Go to [localhost:8080](http://localhost:8080) to view the trade data from the Redpanda Console UI.
