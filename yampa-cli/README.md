@@ -38,35 +38,10 @@ The available output formats are:
 
 ## Configuration
 
-The yampa-cli can read configuration information directly from the environment or from an env file. To get started, copy the contents of **.env.example** into **.env**. Update the values as necessary. The default broker URL's and schema registry URL can be used with the Redpanda cluster created by `redpanda/docker-compose.yml`.
-
-The following environment variables are supported:
-
-- KAFKA_BROKER_URLS
-
-- SCHEMA_REGISTRY_URL
-
-- KAFKA_MESSAGE_FORMAT
-
-- KAFKA_MESSAGE_INCLUDE_KEY
-
-- ALPACA_KEY
-
-- ALPACA_SECRET
-
-- PUSHER_APP_ID
-
-- PUSHER_KEY
-
-- PUSHER_SECRET
-
-- PUSHER_CLUSTER
-
-- PUSHER_CHANNEL
-
-- PUSHER_EVENT_NAME
-
-- PUSHER_BATCH_SIZE
+- To use the default settings, copy the contents of `.env.example` into a new file called `.env`.
+- The default configuration assumes that you are running a Redpanda cluster using `yampa/redpanda/docker-compose.yml`.
+- All of the environment settings are optional, but most of the upstream/downstream options require some of them to be set.
+- To customize the settings, modify `.env` accordingly.
 
 ## Usage
 
