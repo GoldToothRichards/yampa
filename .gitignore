@@ -183,3 +183,9 @@ cython_debug/
 *.csv
 *.zip
 *.gz
+*.parquet
+
+# pnpm
+.pnpm-store
+.pnpm
+node_modules/
