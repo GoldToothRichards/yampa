@@ -26,6 +26,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"time"
 
 	"yampa-cli/pkg/core"
 
@@ -47,6 +48,8 @@ func NewKafkaMessageConfig() KafkaMessageConfig {
 	}
 }
 
+const timestampFormat = "2006-01-02 15:04:05.000 -0700 MST"
+
 func WriteToKafka(
 	trades chan core.TradeJson,
 	config KafkaMessageConfig,
@@ -63,8 +66,27 @@ func WriteToKafka(
 			for {
 				trade_json := <-trades
 
+				// Parse the JSON string timestamp to time.Time
+				parsedTime, err := time.Parse(timestampFormat, trade_json.Timestamp)
+				if err != nil {
+					core.ErrorLogger.Printf("Error parsing timestamp: %v", err)
+					json_bytes, _ := json.Marshal(trade_json)
+					json_str := string(json_bytes)
+					core.ErrorLogger.Printf("Trade: %v", json_str)
+					continue
+				}
+
 				// Convert json to avro
-				trade_avro := core.TradeAvro(trade_json)
+				trade_avro := core.TradeAvro{
+					Source:      trade_json.Source,
+					Base:        trade_json.Base,
+					Quote:       trade_json.Quote,
+					Exchange:    trade_json.Exchange,
+					VolumeBase:  trade_json.VolumeBase,
+					VolumeQuote: trade_json.VolumeQuote,
+					Price:       trade_json.Price,
+					Timestamp:   parsedTime.UnixMilli(),
+				}
 
 				// Define avro key from the full avro record
 				trade_key := core.TradeAvroKey{
@@ -92,8 +114,27 @@ func WriteToKafka(
 			for {
 				trade_json := <-trades
 
+				// Parse the JSON string timestamp to time.Time
+				parsedTime, err := time.Parse(timestampFormat, trade_json.Timestamp)
+				if err != nil {
+					core.ErrorLogger.Printf("Error parsing timestamp: %v", err)
+					json_bytes, _ := json.Marshal(trade_json)
+					json_str := string(json_bytes)
+					core.ErrorLogger.Printf("Trade: %v", json_str)
+					continue
+				}
+
 				// Convert json to avro
-				trade_avro := core.TradeAvro(trade_json)
+				trade_avro := core.TradeAvro{
+					Source:      trade_json.Source,
+					Base:        trade_json.Base,
+					Quote:       trade_json.Quote,
+					Exchange:    trade_json.Exchange,
+					VolumeBase:  trade_json.VolumeBase,
+					VolumeQuote: trade_json.VolumeQuote,
+					Price:       trade_json.Price,
+					Timestamp:   parsedTime.UnixMilli(),
+				}
 
 				producer.Produce(
 					context.Background(),
@@ -178,7 +219,7 @@ func WriteToKafka(
 	}
 }
 
-func GetSerde(config KafkaMessageConfig) sr.Serde {
+func GetSerde(config KafkaMessageConfig) *sr.Serde {
 	// Create schema registry client
 	rcl, err := sr.NewClient(sr.URLs(viper.GetString("SCHEMA_REGISTRY_URL")))
 	if err != nil {
@@ -203,7 +244,7 @@ func GetSerde(config KafkaMessageConfig) sr.Serde {
 		core.ErrorLogger.Fatal("Unsupported schema format: ", config.Format)
 	}
 
-	return serde
+	return &serde
 }
 
 func registerAvroSchema(rcl *sr.Client, subject string, schemaStr string, isKeySchema bool, serde *sr.Serde) {

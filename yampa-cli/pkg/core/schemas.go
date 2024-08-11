@@ -48,7 +48,7 @@ type TradeAvro struct {
 	VolumeBase  float64 `avro:"volume_base"`
 	VolumeQuote float64 `avro:"volume_quote"`
 	Price       float64 `avro:"price"`
-	Timestamp   string  `avro:"timestamp"`
+	Timestamp   int64   `avro:"timestamp"`
 }
 
 type TradeAvroKey struct {
@@ -69,7 +69,10 @@ var TradeAvroSchema = `{
 		{"name": "volume_base", "type": "double"},
 		{"name": "volume_quote", "type": "double"},
 		{"name": "price", "type": "double"},
-		{"name": "timestamp", "type": "string"}
+		{"name": "timestamp", "type": {
+			"type": "long",
+			"logicalType": "timestamp-millis"
+		}}
 	]
 }`
 

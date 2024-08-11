@@ -94,6 +94,7 @@ func StreamCoincapExchange(
 			json.Unmarshal(message, &trade_in)
 
 			// Convert input message to standard json schema
+			const timestampFormat = "2006-01-02 15:04:05.000 -0700 MST"
 			trade_out := core.TradeJson{
 				Source:      "coincap-crypto",
 				Base:        trade_in.Base,
@@ -102,7 +103,7 @@ func StreamCoincapExchange(
 				VolumeBase:  trade_in.Volume,
 				VolumeQuote: trade_in.Price * trade_in.Volume,
 				Price:       trade_in.Price,
-				Timestamp:   time.UnixMilli(trade_in.Timestamp).String(),
+				Timestamp:   time.UnixMilli(trade_in.Timestamp).Format(timestampFormat),
 			}
 
 			// Push trade through the channel
