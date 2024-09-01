@@ -12,7 +12,7 @@ services:
         sleep 5;
       done;
       echo 'Redpanda started, creating topics...';
-      rpk topic create trades --brokers=${KAFKA_BROKER_URLS} -c cleanup.policy=delete;
+      rpk topic create trades --brokers=${KAFKA_BROKER_URLS} -r 1 -p 4 -c cleanup.policy=delete retention.ms=86400000;
       echo 'Topics created successfully.';
       "
 

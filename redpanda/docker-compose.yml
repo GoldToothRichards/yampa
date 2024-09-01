@@ -21,7 +21,7 @@ services:
       - --set redpanda.enable_transactions=true
       - --set redpanda.auto_create_topics_enabled=true
       - --set redpanda.default_topic_replications=1
-      - --set redpanda.default_topic_partitions=4
+      - --set redpanda.default_topic_partitions=1
       - --set redpanda.log_cleanup_policy=compact # compact, delete
       - --set redpanda.log_segment_ms=86400000 # Always close segment after 24 hours. Segments may be closed sooner if they reach the segment size limit (default 1GB).
       - --set redpanda.log_retention_ms=86400000 # Mark a log segment for deletion 24 hours after it is closed. Messages may be deleted sooner if they reach the retention size limit (default 1GB).
