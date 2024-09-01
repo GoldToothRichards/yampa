@@ -18,10 +18,10 @@
   - https://www.confluent.io/hub/clickhouse/clickhouse-kafka-connect
   - https://www.confluent.io/hub/tabular/iceberg-kafka-connect
 
-- Extract the plugins to `/opt/kafka/connect-plugins`:
+- Extract the plugins to `./connect-plugins`:
 
   ```bash
-  mkdir -p /opt/kafka/connect-plugins && unzip *.zip -d /opt/kafka/connect-plugins
+  mkdir -p /opt/kafka/connect-plugins && unzip *.zip -d ./connect-plugins
   ```
 
 - Create a docker network for the Redpanda Connect cluster (if it does not already exist):
