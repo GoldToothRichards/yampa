@@ -1,0 +1,10 @@
+checkpoint-url = '/arroyo/checkpoints'
+
+[compiler]
+artifact-url = "/arroyo/artifacts"
+
+[pipeline]
+source-batch-size = 512
+
+[database]
+type = "sqlite"

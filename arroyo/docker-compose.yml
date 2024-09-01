@@ -1,18 +1,22 @@
 services:
   arroyo:
-    image: ghcr.io/arroyosystems/arroyo-single:0.10.3
+    image: ghcr.io/arroyosystems/arroyo-single:0.11.2
     container_name: arroyo-1
     restart: unless-stopped
-    networks:
-      - redpanda-net
-    ports:
-      - 8000:8000
+    network_mode: host
+    volumes:
+      - arroyo-db:/root/.config/arroyo/
+      - arroyo-artifacts:/arroyo/artifacts
+      - arroyo-checkpoints:/arroyo/checkpoints
+    environment:
+      - ARROYO__CHECKPOINT_URL=/arroyo/checkpoints
+      - ARROYO__COMPILER__ARTIFACT_URL=/arroyo/artifacts
+    command: cluster
 
   topics:
     image: redpandadata/redpanda:v24.1.7
     container_name: stream-topics
-    networks:
-      - redpanda-net
+    network_mode: host
     entrypoint: /bin/sh
     command: >
       -c "
@@ -21,10 +25,12 @@ services:
         sleep 5;
       done;
       echo 'Redpanda started, creating topics...';
-      rpk topic create prices --brokers=${KAFKA_BROKER_URLS} -r 1 -c cleanup.policy=delete -c retention.ms=3600000;
+      rpk topic create clean_trades --brokers=${KAFKA_BROKER_URLS} -r 1 -c cleanup.policy=delete -c retention.ms=86400000;
+      rpk topic create rejected_trades --brokers=${KAFKA_BROKER_URLS} -r 1 -p 1 -c cleanup.policy=delete -c retention.ms=86400000;
       echo 'Topics created successfully.';
       "
 
-networks:
-  redpanda-net:
-    external: true
+volumes:
+  arroyo-checkpoints:
+  arroyo-artifacts:
+  arroyo-db:
