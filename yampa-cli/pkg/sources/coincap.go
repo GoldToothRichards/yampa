@@ -48,8 +48,7 @@ func StreamCoincapCrypto(
 ) {
 	exchanges := []string{
 		"binance", "hitbtc", "gdax", "huobi", "bitfinex", "bitstamp",
-		"gemini", "poloniex", "bitso", "luno", "therocktrading",
-		"coinmate",
+		"gemini", "bitso", "luno", "therocktrading", "coinmate",
 	}
 
 	// Stream trades from each exchange on a separate thread
