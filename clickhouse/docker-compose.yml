@@ -1,0 +1,51 @@
+services:
+  clickhouse-server:
+    image: clickhouse/clickhouse-server:latest
+    # user: ${UID}:${GID}
+    container_name: clickhouse-server
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./config/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml:ro
+      - ./config/config.d/logging.xml:/etc/clickhouse-server/config.d/logging.xml:ro
+      - ./config/config.d/storage.xml:/etc/clickhouse-server/config.d/storage.xml:ro
+      - ./config/config.d/resources.xml:/etc/clickhouse-server/config.d/resources.xml:ro
+      - ./config/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
+      - clickhouse-lib-data:/var/lib/clickhouse
+      - clickhouse-log-data:/var/log/clickhouse-server
+    # ports:
+    #   - 8123:8123
+    #   - 9000:9000
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    environment:
+      - CLICKHOUSE_DB=${CLICKHOUSE_DB}
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
+  clickhouse-ui:
+    image: ghcr.io/caioricciuti/ch-ui:latest
+    container_name: clickhouse-ui
+    restart: unless-stopped
+    network_mode: host
+    # ports:
+    #   - 5521:5521
+    environment:
+      - VITE_CLICKHOUSE_URL=http://localhost:8123
+      - VITE_CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - VITE_CLICKHOUSE_PASS=${CLICKHOUSE_PASSWORD}
+    depends_on:
+      - clickhouse-server
+
+
+volumes:
+  clickhouse-lib-data:
+  clickhouse-log-data:

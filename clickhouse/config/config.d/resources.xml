@@ -1,0 +1,43 @@
+<clickhouse>
+
+    <!-- Global max concurrent queres. Default=16-->
+    <!-- <max_concurrent_queries>{{ 2 * number_of_cpu_cores }}</max_concurrent_queries> -->
+    <max_concurrent_queries>4</max_concurrent_queries>
+    
+    <!-- Global max concurrent insert queres. Default=0 (Unlimited)-->
+    <!-- <max_concurrent_insert_queries><max_concurrent_insert_queries/> -->
+
+    <!-- Global max concurrent select queres. Default=0 (Unlimited)-->
+    <!-- <max_concurrent_select_queries><max_concurrent_select_queries/> -->
+    
+    <!-- Global max memory usage. Default=0 (Unlimited)-->
+    <!-- Reduce to 3GB -->
+    <!-- <max_server_memory_usage>3221225472<max_server_memory_usage/> --> 
+
+    <!-- Global max ratio of physical memory which can be used. Default=0.9 -->
+    <!-- <max_server_memory_usage_to_ram_ratio><max_server_memory_usage_to_ram_ratio/> -->
+
+    <!-- Reduce mark cache size to 256MB. Default=5GB -->
+    <mark_cache_size>268435456</mark_cache_size>
+
+    <!-- Limit number of threads for background processing -->
+    <!-- <background_pool_size>4</background_pool_size>
+    <background_merges_mutations_concurrency_ratio>1</background_merges_mutations_concurrency_ratio> -->
+
+    <merge_tree>
+        <!--
+        Configures the number of rows that are read from the merged parts into memory.
+        Lowering this value will lower memory requirements at the expense of slower merges
+        Choose a value between 1024 and 4096.
+        The default is 8192.
+        -->
+        <merge_max_block_size>8192</merge_max_block_size>
+
+        <!--
+        Controls the maximum total parts size (in bytes) to be merged into one part
+        Reduce to 5GB. The default is 150GB.
+        -->
+        <max_bytes_to_merge_at_max_space_in_pool>5368709120</max_bytes_to_merge_at_max_space_in_pool>
+    </merge_tree>
+
+</clickhouse>

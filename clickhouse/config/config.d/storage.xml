@@ -1,0 +1,43 @@
+<clickhouse>
+    <storage_configuration>
+        <disks>
+            <!-- This tag is the name of your S3-emulated disk. -->
+            <s3>
+                <type>s3</type>
+                <!-- Set this to the endpoint of your S3-compatible provider -->
+                <endpoint>https://ewr1.vultrobjects.com/tables/</endpoint>
+                <!-- Read credentials from ENV -->
+                <use_environment_credentials>1</use_environment_credentials>
+            </s3>
+        </disks>
+        <policies>
+            <!-- Shared policy is used when storage should be shared between local disk and S3. -->
+            <shared>
+                <volumes>
+                    <default>
+                        <!-- Default is the disk that is present in the default config -->
+                        <disk>default</disk>
+                    </default>
+                    <s3>
+                        <disk>s3</disk>
+                    </s3>
+                </volumes>
+            </shared>
+            <!-- S3 Primary policy is used when storage should be on S3 only.-->
+            <s3_primary>
+                <volumes>
+                    <s3>
+                        <disk>s3</disk>
+                    </s3>
+                </volumes>
+            </s3_primary>
+        </policies>
+    </storage_configuration>
+
+
+    <!-- Apply shared storage policy by default to all MergeTree tables -->
+    <merge_tree>
+        <storage_policy>shared</storage_policy>
+    </merge_tree>
+
+</clickhouse>

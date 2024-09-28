@@ -1,0 +1,90 @@
+<clickhouse>
+    <logger replace="1">
+        <level>debug</level>
+        <formatting>json</formatting>
+        <log>/var/log/clickhouse-server/clickhouse-server-%F.log</log>
+        <errorlog>/var/log/clickhouse-server/clickhouse-server-%F.err.log</errorlog>
+        <size>1000M</size>
+        <count>3</count>
+    </logger>
+
+    <query_log replace="1">
+        <database>system</database>
+        <table>query_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_log>
+
+    <trace_log replace="1">
+        <database>system</database>
+        <table>trace_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </trace_log>
+
+    <text_log replace="1">
+        <database>system</database>
+        <table>text_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </text_log>
+
+    <metric_log replace="1">
+        <database>system</database>
+        <table>metric_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </metric_log>
+
+    <asynchronous_metric_log replace="1">
+        <database>system</database>
+        <table>asynchronous_metric_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+    </asynchronous_metric_log>
+
+    <processors_profile_log replace="1">
+        <database>system</database>
+        <table>processors_profile_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </processors_profile_log>
+
+    <part_log replace="1">
+        <database>system</database>
+        <table>part_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </part_log>
+
+    <error_log replace="1">
+        <database>system</database>
+        <table>error_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY toYYYYMMDD(event_date)
+                ORDER BY (event_time)
+                TTL event_date + INTERVAL 30 DAY DELETE
+        </engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </error_log>
+</clickhouse>
