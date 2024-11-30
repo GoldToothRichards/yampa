@@ -1,6 +1,10 @@
 {
     "bypassRowBinary": "false",
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
+    "consumer.override.fetch.max.wait.ms": "60000",
+    "consumer.override.fetch.min.bytes": "1048576",
+    "consumer.override.max.partition.fetch.bytes": "5242880",
+    "consumer.override.max.poll.records": "5000",
     "customInsertFormat": "false",
     "database": "trades",
     "enableDbTopicSplit": "false",
@@ -20,8 +24,8 @@
     "ssl": "false",
     "suppressTableExistenceException": "false",
     "tasks.max": "4",
-    "topic2TableMap": "clean_trades=raw_trades",
-    "topics": "clean_trades",
+    "topic2TableMap": "trades=raw_trades",
+    "topics": "trades",
     "username": "",
     "value.converter": "io.confluent.connect.avro.AvroConverter",
     "value.converter.schema.registry.url": ""
