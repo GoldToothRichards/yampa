@@ -8,7 +8,7 @@ Yampa is a data engineering project that streams real-time cryptocurrency trade 
 
 ## 🛠️ Tech Stack
 
-- **Data Collection**: Yampa CLI (Go)
+- **Data Collection**: [Yampa CLI](./yampa-cli) (Go)
 - **Data Streaming**: Redpanda (Kafka API-compatible)
 - **Stream Processing**: Redpanda Connect
 - **Storage & Analytics**: ClickHouse
