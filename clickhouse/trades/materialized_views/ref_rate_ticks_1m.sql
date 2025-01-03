@@ -1,8 +1,7 @@
 -- Table for 1m price ticks
-CREATE TABLE IF NOT EXISTS trades.price_ticks_1m (
+CREATE TABLE IF NOT EXISTS trades.ref_rate_ticks_1m (
     base LowCardinality(String),
     quote LowCardinality(String),
-    exchange LowCardinality(String),
     source LowCardinality(String),
     window_start DateTime,
     window_end DateTime,
@@ -15,22 +14,21 @@ CREATE TABLE IF NOT EXISTS trades.price_ticks_1m (
     trade_count_state AggregateFunction(count, UInt64)
 )
 ENGINE = AggregatingMergeTree()
-PRIMARY KEY (base, quote, exchange, source)
-ORDER BY (base, quote, exchange, source, window_start)
+PRIMARY KEY (base, quote, source)
+ORDER BY (base, quote, source, window_start)
 PARTITION BY toYYYYMM(window_start)
 TTL
     window_start + INTERVAL 1 MONTH TO VOLUME 's3',
     window_start + INTERVAL 1 YEAR DELETE;
 
--- 1m price ticks
-CREATE MATERIALIZED VIEW trades.price_ticks_1m_mv TO trades.price_ticks_1m AS 
+-- 1m ref rate ticks
+CREATE MATERIALIZED VIEW trades.ref_rate_ticks_1m_mv TO trades.ref_rate_ticks_1m AS 
 WITH clean_trades AS
 (
     SELECT * FROM trades.raw_trades
     WHERE source != ''
       AND base != ''
       AND quote != ''
-      AND exchange != ''
       AND price > 0
       AND volume_base > 0
       AND volume_quote > 0
@@ -39,7 +37,6 @@ WITH clean_trades AS
 SELECT
     base,
     quote,
-    exchange,
     source,
     tumbleStart(toDateTime(timestamp), toIntervalMinute(1)) AS window_start,
     tumbleEnd(toDateTime(timestamp), toIntervalMinute(1)) AS window_end,
@@ -54,17 +51,15 @@ FROM clean_trades
 GROUP BY
     base,
     quote,
-    exchange,
     source,
     window_start,
     window_end;
 
 -- OHLCV View
-CREATE OR REPLACE VIEW trades.ohlcv_1m AS
+CREATE OR REPLACE VIEW trades.ohlcv_ref_rate_1m AS
 SELECT
     base,
     quote,
-    exchange,
     source,
     window_start,
     argMinMerge(open_state) as open,
@@ -76,18 +71,16 @@ SELECT
     countMerge(trade_count_state) as count,
     (close - open) / open as pct_change,
     volume_quote / volume_base as vwap
-FROM trades.price_ticks_1m
+FROM trades.ref_rate_ticks_1m
 WHERE (window_start >= {start: String}) AND (window_start <= {end: String})
 GROUP BY
     base,
     quote,
-    exchange,
     source,
     window_start
 ORDER BY
     base,
     quote,
-    exchange,
     source,
     window_start ASC
 WITH FILL
@@ -99,7 +92,7 @@ WITH FILL
 -- Test all pairs
 SELECT 
     *
-FROM trades.ohlcv_1m(
+FROM trades.ohlcv_ref_rate_1m(
     start = '2024-09-28 18:00:00',
     end = '2024-09-28 19:00:00',
 )
@@ -108,14 +101,14 @@ LIMIT 20
 -- Test single pair
 SELECT 
     *
-FROM trades.ohlcv_1m(
+FROM trades.ohlcv_ref_rate_1m(
     start = '2024-09-29 21:58:00',
     end = '2024-09-29 22:58:00'
 )
 WHERE
     base = 'bitcoin'
     AND quote = 'united-states-dollar'
-    AND exchange = 'gdax'
+    AND volume_base > 0
 LIMIT 20
 
 
